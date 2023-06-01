@@ -179,14 +179,14 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
             providerToken = await this.getProviderToken(token);
         }
 
-        const providerUser = await this.getUserById(payload.data!);
+        const providerUser = await this.getUserById(payload!);
 
         /**
          * Marking user as logged in
          */
         this.markUserAsLoggedIn(providerUser.user, true);
         this.tokenHash = this.generateHash(token);
-        this.payload = payload.data!;
+        this.payload = payload!;
 
         /**
          * Emit authenticate event. It can be used to track user logins.
@@ -250,7 +250,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
             throw new JwtAuthenticationException("Invalid refresh token");
         }
 
-        const providerUser = await this.findById(providerToken.userId);
+        const providerUser = await this.findById(providerToken.id);
         return providerUser.user;
     }
 
@@ -277,13 +277,13 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
          * "getUserForLogin" raises exception when id is missing, so we can
          * safely assume it is defined
          */
-        const userId = providerUser.getId()!;
+        const id = providerUser.getId()!;
 
         if (payload) {
-            payload.userId = userId;
+            payload.id = id;
         } else {
             payload = {
-                userId: userId,
+                id: id,
                 user: {
                     name: user.name,
                     email: user.email,
@@ -301,7 +301,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
             /**
              * Persist refresh token ONLY to the database.
              */
-            providerToken = new ProviderToken(name, tokenInfo.refreshTokenHash, userId, this.tokenType);
+            providerToken = new ProviderToken(name, tokenInfo.refreshTokenHash, id, this.tokenType);
             providerToken.expiresAt = tokenInfo.refreshTokenExpiresAt;
             providerToken.meta = meta;
 
@@ -310,7 +310,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
             /**
              * Persist JWT token and refresh token to the database
              */
-            providerToken = new JwtProviderToken(name, tokenInfo.accessTokenHash, userId, this.tokenType);
+            providerToken = new JwtProviderToken(name, tokenInfo.accessTokenHash, id, this.tokenType);
             providerToken.expiresAt = tokenInfo.expiresAt;
             providerToken.refreshToken = tokenInfo.refreshTokenHash;
             providerToken.refreshTokenExpiresAt = tokenInfo.refreshTokenExpiresAt;
@@ -331,7 +331,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
          * Marking user as logged in
          */
         this.markUserAsLoggedIn(providerUser.user);
-        this.payload = payload.data;
+        this.payload = payload;
         this.tokenHash = tokenInfo.accessTokenHash;
 
         /**
@@ -406,7 +406,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
             refreshTokenExpiresIn = this.config.refreshTokenDefaultExpire;
         }
 
-        let accessTokenBuilder = new SignJWT({ data: payload }).setProtectedHeader({ alg: "RS256" }).setIssuedAt();
+        let accessTokenBuilder = new SignJWT(payload).setProtectedHeader({ alg: "RS256" }).setIssuedAt();
 
         if (this.config.issuer) {
             accessTokenBuilder = accessTokenBuilder.setIssuer(this.config.issuer);
@@ -503,13 +503,10 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
             audience: this.config.audience,
         });
 
-        const { data, exp }: JWTCustomPayload = payload;
+        const { exp, id }: JWTCustomPayload = payload;
 
-        if (!data) {
-            throw new JwtAuthenticationException("Invalid JWT payload");
-        }
-        if (!data.userId) {
-            throw new JwtAuthenticationException("Invalid JWT payload: missing userId");
+        if (!id) {
+            throw new JwtAuthenticationException("Invalid JWT payload: missing user id");
         }
         if (exp && exp < Math.floor(DateTime.now().toSeconds())) {
             throw new JwtAuthenticationException("Expired JWT token");
@@ -535,7 +532,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
      * Returns user from the user session id
      */
     private async getUserById(payloadData: JWTCustomPayloadData) {
-        const authenticatable = await this.provider.findById(payloadData.userId);
+        const authenticatable = await this.provider.findById(payloadData.id);
 
         if (!authenticatable.user) {
             throw new JwtAuthenticationException("No user found from payload");

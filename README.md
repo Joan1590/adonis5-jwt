@@ -5,6 +5,8 @@
 Add JWT authentication to Adonisjs v5. 
 Thanks to https://github.com/alex-oliveira for the starting implementation!
 
+Thanks to https://github.com/maxgalbu/adonis5-jwt for make the auth, work correctly, but i need the payload without a force data object property xD
+
 ## Installation
 
 Make sure to install and configure `@adonisjs/auth` and `@adonisjs/lucid` beforehand, by running the following commands:
@@ -86,7 +88,7 @@ By default, `.generate()` or `.login()` uses a payload like the following:
 ```ts
 //user is a Lucid model
 {
-    userId: user.id,
+    id: user.id,
     user: {
         name: user.name,
         email: user.email,

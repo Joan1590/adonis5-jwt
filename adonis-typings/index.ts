@@ -17,9 +17,7 @@ declare module "@ioc:Adonis/Addons/Jwt" {
         [key: string]: any;
     };
 
-    export type JWTCustomPayload = JWTPayload & {
-        data?: JWTCustomPayloadData;
-    };
+    export type JWTCustomPayload = JWTPayload & JWTCustomPayloadData;
 
     /**
      * Login options

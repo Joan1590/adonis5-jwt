@@ -1,6 +1,6 @@
 {
-  "name": "adonis5-jwt",
-  "version": "1.1.7",
+  "name": "@joan1590/adonis5-jwt",
+  "version": "1.0.0",
   "description": "",
   "types": "build/adonis-typings/index.d.ts",
   "main": "build/providers/JwtProvider.js",
@@ -21,15 +21,15 @@
     "release": "np",
     "version": "npm run build"
   },
-  "author": "Max Galbusera",
+  "author": "JoanxD",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/maxgalbu/adonis5-jwt.git"
+    "url": "git+https://github.com/Joan1590/adonis5-jwt.git"
   },
-  "homepage": "https://github.com/maxgalbu/adonis5-jwt#readme",
+  "homepage": "https://github.com/Joan1590/adonis5-jwt#readme",
   "bugs": {
-    "url": "https://github.com/maxgalbu/adonis5-jwt/issues"
+    "url": "https://github.com/Joan1590/adonis5-jwt/issues"
   },
   "keywords": [
     "adonis",
